@@ -23,9 +23,10 @@
 <configuration>
 
     <!-- autoMappingBehavior should be set in each test case -->
-
+<!--  mybatis environment设置-->
     <environments default="development">
         <environment id="development">
+<!--           事务-->
             <transactionManager type="JDBC">
                 <property name="" value=""/>
             </transactionManager>

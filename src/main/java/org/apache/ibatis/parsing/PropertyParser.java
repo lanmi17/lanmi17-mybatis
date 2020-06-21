@@ -57,13 +57,35 @@ public class PropertyParser {
   }
 
   private static class VariableTokenHandler implements TokenHandler {
+    // Properties 对象
     private final Properties variables;
+    /**
+     *  是否开启默认值功能，默认 ENABLE_DEFAULT_VALUE (false)
+     *
+     *  开启可以设置如下
+     *  <properties resource="org/mybatis/example/config.properties">
+     *   <property name="org.apache.ibatis.parsing.PropertyParser.enable-default-value" value="true"/>
+     * </properties>
+     */
     private final boolean enableDefaultValue;
+
+    /**
+     *  默认值的分隔符，默认 KEY_DEFAULT_VALUE_SEPARATOR  (:)
+     *
+     *  修改可以按如下配置
+     *  <properties resource="org/mybatis/example/config.properties">
+     *   <property name="org.apache.ibatis.parsing.PropertyParser.default-value-separator" value="?:"/>
+     * </properties>
+     */
     private final String defaultValueSeparator;
 
     private VariableTokenHandler(Properties variables) {
       this.variables = variables;
+      // 是否开启默认值功能
+      // org.apache.ibatis.parsing.PropertyParser.enable-default-value
       this.enableDefaultValue = Boolean.parseBoolean(getPropertyValue(KEY_ENABLE_DEFAULT_VALUE, ENABLE_DEFAULT_VALUE));
+      // 默认值分隔符
+      // org.apache.ibatis.parsing.PropertyParser.default-value-separator
       this.defaultValueSeparator = getPropertyValue(KEY_DEFAULT_VALUE_SEPARATOR, DEFAULT_VALUE_SEPARATOR);
     }
 
@@ -75,17 +97,21 @@ public class PropertyParser {
     public String handleToken(String content) {
       if (variables != null) {
         String key = content;
+        // 默认值功能开启
         if (enableDefaultValue) {
           final int separatorIndex = content.indexOf(defaultValueSeparator);
           String defaultValue = null;
           if (separatorIndex >= 0) {
             key = content.substring(0, separatorIndex);
+            // 获取默认值
             defaultValue = content.substring(separatorIndex + defaultValueSeparator.length());
           }
+          //  有默认值优先替换
           if (defaultValue != null) {
             return variables.getProperty(key, defaultValue);
           }
         }
+        // 没默认值，直接返回
         if (variables.containsKey(key)) {
           return variables.getProperty(key);
         }

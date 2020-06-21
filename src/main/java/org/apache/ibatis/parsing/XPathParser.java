@@ -46,10 +46,25 @@ import org.xml.sax.SAXParseException;
  */
 public class XPathParser {
 
+  /**
+   * xml document对象
+   */
   private final Document document;
+  /**
+   * 是否校验
+   */
   private boolean validation;
+  /**
+   * xml 实体解析器
+   */
   private EntityResolver entityResolver;
+  /**
+   *  变量 Properties 对象
+   */
   private Properties variables;
+  /**
+   *  w3c xpath 解析
+   */
   private XPath xpath;
 
   public XPathParser(String xml) {
@@ -112,6 +127,13 @@ public class XPathParser {
     this.document = document;
   }
 
+  /**
+   *
+   * @param xml xml文件地址
+   * @param validation 是否校验
+   * @param variables properties 变量
+   * @param entityResolver 实体解析器
+   */
   public XPathParser(String xml, boolean validation, Properties variables, EntityResolver entityResolver) {
     commonConstructor(validation, variables, entityResolver);
     this.document = createDocument(new InputSource(new StringReader(xml)));
@@ -194,11 +216,11 @@ public class XPathParser {
     return (Double) evaluate(expression, root, XPathConstants.NUMBER);
   }
 
-  public List<XNode> evalNodes(String expression) {
+  public List<XNode> evalNodes(String expression) { //XNode 列表
     return evalNodes(document, expression);
   }
 
-  public List<XNode> evalNodes(Object root, String expression) {
+  public List<XNode> evalNodes(Object root, String expression) { //XNode 列表
     List<XNode> xnodes = new ArrayList<>();
     NodeList nodes = (NodeList) evaluate(expression, root, XPathConstants.NODESET);
     for (int i = 0; i < nodes.getLength(); i++) {
@@ -207,11 +229,11 @@ public class XPathParser {
     return xnodes;
   }
 
-  public XNode evalNode(String expression) {
+  public XNode evalNode(String expression) { //XNode 节点
     return evalNode(document, expression);
   }
 
-  public XNode evalNode(Object root, String expression) {
+  public XNode evalNode(Object root, String expression) { //XNode 节点
     Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
     if (node == null) {
       return null;
@@ -219,6 +241,13 @@ public class XPathParser {
     return new XNode(this, node, variables);
   }
 
+  /**
+   *
+   * @param expression xml里标签路径
+   * @param root document对象
+   * @param returnType 返回的值
+   * @return
+   */
   private Object evaluate(String expression, Object root, QName returnType) {
     try {
       return xpath.evaluate(expression, root, returnType);
@@ -227,9 +256,15 @@ public class XPathParser {
     }
   }
 
+  /**
+   *  将xml文件解析，获取document 对象(参考java xpath解析器)
+   * @param inputSource
+   * @return
+   */
   private Document createDocument(InputSource inputSource) {
     // important: this must only be called AFTER common constructor
     try {
+      //1、创建 DocumentBuilderFactory 对象
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       factory.setValidating(validation);
@@ -240,6 +275,7 @@ public class XPathParser {
       factory.setCoalescing(false);
       factory.setExpandEntityReferences(true);
 
+      //2、创建 DocumentBuilder 对象
       DocumentBuilder builder = factory.newDocumentBuilder();
       builder.setEntityResolver(entityResolver);
       builder.setErrorHandler(new ErrorHandler() {
@@ -258,12 +294,19 @@ public class XPathParser {
           // NOP
         }
       });
+      //3、解析xml 得到document
       return builder.parse(inputSource);
     } catch (Exception e) {
       throw new BuilderException("Error creating document instance.  Cause: " + e, e);
     }
   }
 
+  /**
+   *  构造器 初始化变量
+   * @param validation
+   * @param variables
+   * @param entityResolver
+   */
   private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
     this.validation = validation;
     this.entityResolver = entityResolver;
