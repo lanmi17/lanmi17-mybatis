@@ -16,12 +16,28 @@
 package org.apache.ibatis.reflection.invoker;
 
 import java.lang.reflect.InvocationTargetException;
+/**
+ *  执行器接口， 统一 get方法、set方法、属性的set/get 调用
+ */
 
 /**
  * @author Clinton Begin
  */
 public interface Invoker {
+  /**
+   *
+   * @param target 目标对象
+   * @param args 参数
+   * @return
+   * @throws IllegalAccessException
+   * @throws InvocationTargetException
+   */
   Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException;
 
+  /**
+   *  get方法 ： 获取返回值类型
+   *  set方法 : 获取参数类型
+   * @return
+   */
   Class<?> getType();
 }

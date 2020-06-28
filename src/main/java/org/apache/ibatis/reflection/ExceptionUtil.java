@@ -27,6 +27,11 @@ public class ExceptionUtil {
     // Prevent Instantiation
   }
 
+  /**
+   *
+   * @param wrapped  包装的异常
+   * @return 去除包装异常
+   */
   public static Throwable unwrapThrowable(Throwable wrapped) {
     Throwable unwrapped = wrapped;
     while (true) {

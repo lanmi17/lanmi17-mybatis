@@ -49,21 +49,49 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
  */
 public class Reflector {
 
+  /**
+   *  需要 reflect 的类
+   */
   private final Class<?> type;
+  /**
+   * 可读的属性名称
+   */
   private final String[] readablePropertyNames;
+  /**
+   * 可写的属性名称
+   */
   private final String[] writablePropertyNames;
+  /**
+   * 能够set的方法
+   */
   private final Map<String, Invoker> setMethods = new HashMap<>();
+  /**
+   * 能够get的方法映射
+   */
   private final Map<String, Invoker> getMethods = new HashMap<>();
+  /**
+   * 属性的set方法参数类型映射
+   */
   private final Map<String, Class<?>> setTypes = new HashMap<>();
+  /**
+   * 属性的get方法返回值类型映射
+   */
   private final Map<String, Class<?>> getTypes = new HashMap<>();
+  /**
+   * type这个类的默认构造方法
+   */
   private Constructor<?> defaultConstructor;
 
+//  不区分大小写的属性集合
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   public Reflector(Class<?> clazz) {
     type = clazz;
+    // 设置默认构造方法
     addDefaultConstructor(clazz);
+    // 获取get方法映射
     addGetMethods(clazz);
+    // 获取set方法映射
     addSetMethods(clazz);
     addFields(clazz);
     readablePropertyNames = getMethods.keySet().toArray(new String[0]);
@@ -83,7 +111,9 @@ public class Reflector {
   }
 
   private void addGetMethods(Class<?> clazz) {
+    // 为什么会是数组，因为可能会复写父类的方法
     Map<String, List<Method>> conflictingGetters = new HashMap<>();
+    // 获取类所有方法，包含父类、接口
     Method[] methods = getClassMethods(clazz);
     Arrays.stream(methods).filter(m -> m.getParameterTypes().length == 0 && PropertyNamer.isGetter(m.getName()))
       .forEach(m -> addMethodConflict(conflictingGetters, PropertyNamer.methodToProperty(m.getName()), m));
